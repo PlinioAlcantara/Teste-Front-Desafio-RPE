@@ -1,68 +1,60 @@
-import React from "react";
-import { FaEye, FaSearch } from "react-icons/fa";
+import React, { useState } from "react";
+import ListaClientes from "./ListaClientes";
+import ListaFaturas from "./ListaFaturas";
+import ModalPagamento from "./ModalPagamento";
+import useClientes from "../hooks/useClientes";
 
-const ListaClientes = ({
-  clientes,
-  termoBusca,
-  setTermoBusca,
-  setClienteSelecionado,
-  setMostrarFaturas,
-  calcularIdade
-}) => {
-  const clientesFiltrados = clientes.filter(c =>
-    c.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
-    c.cpf.includes(termoBusca)
-  );
+const GerenciadorClientes = () => {
+  const { clientes, setClientes, buscarClientes } = useClientes();
+  const [clienteSelecionado, setClienteSelecionado] = useState(null);
+  const [faturaSelecionada, setFaturaSelecionada] = useState(null);
+  const [mostrarFaturas, setMostrarFaturas] = useState(false);
+  const [mostrarPagamento, setMostrarPagamento] = useState(false);
+
+  const abrirFaturas = (cliente) => {
+    setClienteSelecionado(cliente);
+    setMostrarFaturas(true);
+  };
+
+  const abrirModalPagamento = (fatura) => {
+    setFaturaSelecionada(fatura);
+    setMostrarPagamento(true);
+  };
+
+  const registrarPagamento = () => {
+    fetch(`http://localhost:8081/faturas/${faturaSelecionada.id}/pagamento`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dataPagamento: new Date().toISOString().split("T")[0] })
+    })
+      .then((res) => res.json())
+      .then(() => {
+        setMostrarPagamento(false);
+        setFaturaSelecionada(null);
+        buscarClientes();
+      });
+  };
 
   return (
-    <div className="container">
-      <h1 className="titulo futurista">Clientes</h1>
-      <div className="busca-box">
-        <FaSearch className="icone-busca" />
-        <input
-          type="text"
-          placeholder="Buscar por nome ou CPF"
-          value={termoBusca}
-          onChange={e => setTermoBusca(e.target.value)}
-          className="campo-busca"
+    <div className="painel">
+      {mostrarFaturas ? (
+        <ListaFaturas
+          cliente={clienteSelecionado}
+          voltar={() => setMostrarFaturas(false)}
+          abrirModalPagamento={abrirModalPagamento}
         />
-      </div>
-      <table className="tabela tabela-moderna">
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>CPF</th>
-            <th>Idade</th>
-            <th>Status</th>
-            <th>Limite</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {clientesFiltrados.map(c => (
-            <tr key={c.id}>
-              <td>{c.nome}</td>
-              <td>{c.cpf}</td>
-              <td>{calcularIdade(c.dataNascimento)}</td>
-              <td>{c.statusBloqueio === 'B' ? 'Bloqueado' : 'Ativo'}</td>
-              <td>R$ {c.limiteCredito}</td>
-              <td>
-                <button
-                  className="botao"
-                  onClick={() => {
-                    setClienteSelecionado(c);
-                    setMostrarFaturas(true);
-                  }}
-                >
-                  Ver Faturas
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      ) : (
+        <ListaClientes clientes={clientes} abrirFaturas={abrirFaturas} />
+      )}
+      {mostrarPagamento && (
+        <ModalPagamento
+          fatura={faturaSelecionada}
+          cancelar={() => setMostrarPagamento(false)}
+          confirmar={registrarPagamento}
+        />
+      )}
     </div>
   );
 };
 
-export default ListaClientes;
+export default GerenciadorClientes;
