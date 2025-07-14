@@ -1,14 +1,19 @@
 import React from "react";
-import { FaSearch } from "react-icons/fa";
+import { FaEye, FaSearch } from "react-icons/fa";
 
 const ListaClientes = ({
-  clientesFiltrados,
+  clientes,
   termoBusca,
   setTermoBusca,
-  calcularIdade,
   setClienteSelecionado,
-  setMostrarFaturas
+  setMostrarFaturas,
+  calcularIdade
 }) => {
+  const clientesFiltrados = clientes.filter(c =>
+    c.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
+    c.cpf.includes(termoBusca)
+  );
+
   return (
     <div className="container">
       <h1 className="titulo futurista">Clientes</h1>
@@ -42,10 +47,13 @@ const ListaClientes = ({
               <td>{c.statusBloqueio === 'B' ? 'Bloqueado' : 'Ativo'}</td>
               <td>R$ {c.limiteCredito}</td>
               <td>
-                <button className="botao" onClick={() => {
-                  setClienteSelecionado(c);
-                  setMostrarFaturas(true);
-                }}>
+                <button
+                  className="botao"
+                  onClick={() => {
+                    setClienteSelecionado(c);
+                    setMostrarFaturas(true);
+                  }}
+                >
                   Ver Faturas
                 </button>
               </td>

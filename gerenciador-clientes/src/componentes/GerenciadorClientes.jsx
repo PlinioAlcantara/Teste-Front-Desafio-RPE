@@ -2,55 +2,82 @@ import React, { useState } from "react";
 import ListaClientes from "./ListaClientes";
 import ListaFaturas from "./ListaFaturas";
 import ModalPagamento from "./ModalPagamento";
-import useClientes from "../hooks/useClientes";
+import userClientes from "../hooks/userClientes";
 
 const GerenciadorClientes = () => {
-  const { clientes, setClientes, buscarClientes } = useClientes();
+  const { clientes, setClientes, buscarClientes } = userClientes();
   const [clienteSelecionado, setClienteSelecionado] = useState(null);
-  const [faturaSelecionada, setFaturaSelecionada] = useState(null);
   const [mostrarFaturas, setMostrarFaturas] = useState(false);
+  const [termoBusca, setTermoBusca] = useState("");
+  const [faturaSelecionada, setFaturaSelecionada] = useState(null);
   const [mostrarPagamento, setMostrarPagamento] = useState(false);
 
-  const abrirFaturas = (cliente) => {
-    setClienteSelecionado(cliente);
-    setMostrarFaturas(true);
+  const calcularIdade = (dataNasc) => {
+    const hoje = new Date();
+    const nascimento = new Date(dataNasc);
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const m = hoje.getMonth() - nascimento.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) idade--;
+    return idade;
   };
 
-  const abrirModalPagamento = (fatura) => {
-    setFaturaSelecionada(fatura);
-    setMostrarPagamento(true);
-  };
+  // ✅ Corrigida: agora recebe a fatura como argumento
+  const registrarPagamento = (fatura) => {
+    const dataPagamento = new Date().toISOString().split("T")[0];
 
-  const registrarPagamento = () => {
-    fetch(`http://localhost:8081/faturas/${faturaSelecionada.id}/pagamento`, {
+    fetch(`http://localhost:8081/faturas/${fatura.id}/pagamento`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dataPagamento: new Date().toISOString().split("T")[0] })
+      body: JSON.stringify({ dataPagamento })
     })
-      .then((res) => res.json())
-      .then(() => {
-        setMostrarPagamento(false);
-        setFaturaSelecionada(null);
+      .then(res => {
+        if (!res.ok) {
+          throw new Error("Erro ao registrar pagamento");
+        }
+        return res.json();
+      })
+      .then(faturaAtualizada => {
+        const clienteAtualizado = {
+          ...clienteSelecionado,
+          faturas: clienteSelecionado.faturas.map(f =>
+            f.id === faturaAtualizada.id ? faturaAtualizada : f
+          )
+        };
+        setClienteSelecionado(clienteAtualizado);
         buscarClientes();
+        setMostrarPagamento(false);
+      })
+      .catch(err => {
+        console.error("Erro ao registrar pagamento:", err);
+        alert("Erro ao registrar pagamento.");
       });
   };
 
   return (
     <div className="painel">
-      {mostrarFaturas ? (
-        <ListaFaturas
-          cliente={clienteSelecionado}
-          voltar={() => setMostrarFaturas(false)}
-          abrirModalPagamento={abrirModalPagamento}
+      {!mostrarFaturas && (
+        <ListaClientes
+          clientes={clientes}
+          termoBusca={termoBusca}
+          setTermoBusca={setTermoBusca}
+          setClienteSelecionado={setClienteSelecionado}
+          setMostrarFaturas={setMostrarFaturas}
+          calcularIdade={calcularIdade}
         />
-      ) : (
-        <ListaClientes clientes={clientes} abrirFaturas={abrirFaturas} />
       )}
-      {mostrarPagamento && (
+      {mostrarFaturas && clienteSelecionado && (
+        <ListaFaturas
+          clienteSelecionado={clienteSelecionado}
+          setMostrarFaturas={setMostrarFaturas}
+          setFaturaSelecionada={setFaturaSelecionada}
+          setMostrarPagamento={setMostrarPagamento}
+        />
+      )}
+      {mostrarPagamento && faturaSelecionada && (
         <ModalPagamento
-          fatura={faturaSelecionada}
-          cancelar={() => setMostrarPagamento(false)}
-          confirmar={registrarPagamento}
+          faturaSelecionada={faturaSelecionada}
+          setMostrarPagamento={setMostrarPagamento}
+          registrarPagamento={registrarPagamento}
         />
       )}
     </div>
