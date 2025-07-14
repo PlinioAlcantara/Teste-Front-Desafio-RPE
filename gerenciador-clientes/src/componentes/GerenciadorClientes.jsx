@@ -25,7 +25,7 @@ const GerenciadorClientes = () => {
   const registrarPagamento = (fatura) => {
     const dataPagamento = new Date().toISOString().split("T")[0];
 
-    fetch(`http://localhost:8081/faturas/${fatura.id}/pagamento`, {
+    fetch(`http://localhost:8080/faturas/${fatura.id}/pagamento`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ dataPagamento })
