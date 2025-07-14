@@ -1,9 +1,13 @@
-export function formatarDataBR(dataISO) {
+import { parseISO, format } from "date-fns";
+
+export function formData(dataISO) {
   if (!dataISO) return "";
-  const data = new Date(dataISO);
-  return data.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric"
-  });
+
+  try {
+    const data = parseISO(dataISO);
+    return format(data, "dd/MM/yyyy");
+  } catch {
+    return "Data inválida";
+  }
 }
+

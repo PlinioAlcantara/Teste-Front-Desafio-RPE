@@ -1,11 +1,9 @@
-
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #0f172a;
-  color: #f1f5f9;
+  background: #ffffff;
+  color: #1e293b;
 }
-
 
 .painel {
   padding: 2rem;
@@ -13,49 +11,45 @@ body {
   margin: auto;
 }
 
-
 .titulo {
   font-size: 2rem;
   margin-bottom: 1rem;
-  color: #38bdf8;
+  color: #1e3a8a; /* azul escuro */
   text-align: center;
 }
 
 .futurista {
   letter-spacing: 1px;
   font-weight: bold;
-  text-shadow: 0 0 5px rgba(56, 189, 248, 0.4);
+  text-shadow: 0 0 4px rgba(30, 58, 138, 0.3);
 }
-
 
 .tabela {
   width: 100%;
   border-collapse: collapse;
-  background-color: #1e293b;
-  box-shadow: 0 0 10px #0ea5e9;
+  background-color: #f1f5f9;
+  box-shadow: 0 0 10px #cbd5e1;
   border-radius: 8px;
   overflow: hidden;
 }
 
 .tabela thead {
-  background-color: #0f172a;
+  background-color: #1e3a8a;
+  color: white;
 }
 
 .tabela th,
 .tabela td {
   padding: 12px 16px;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid #e2e8f0;
   text-align: left;
 }
 
-.tabela tr:hover {
-  background-color: #1e293b;
-}
 
 
 .botao {
   padding: 8px 14px;
-  background-color: #0ea5e9;
+  background-color: #f97316; /* laranja */
   border: none;
   border-radius: 6px;
   color: white;
@@ -64,24 +58,24 @@ body {
 }
 
 .botao:hover {
-  background-color: #0284c7;
+  background-color: #ea580c;
   transform: scale(1.05);
 }
 
 .botao.voltar {
-  background-color: #475569;
+  background-color: #64748b;
 }
 
 .botao.voltar:hover {
-  background-color: #334155;
+  background-color: #475569;
 }
-
 
 .busca-box {
   position: relative;
   margin-bottom: 1rem;
-  display: flex;
-  justify-content: center;
+  width: 300px;
+  max-width: 100%;
+  margin-inline: auto;
 }
 
 .icone-busca {
@@ -90,18 +84,17 @@ body {
   top: 50%;
   transform: translateY(-50%);
   color: #94a3b8;
+  font-size: 1rem;
 }
 
 .campo-busca {
   padding: 8px 12px 8px 36px;
-  width: 300px;
-  max-width: 100%;
+  width: 100%;
   border-radius: 6px;
-  border: none;
-  background-color: #334155;
-  color: white;
+  border: 1px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #1e293b;
 }
-
 
 .grade-faturas {
   display: grid;
@@ -110,13 +103,12 @@ body {
   margin-top: 1.5rem;
 }
 
-
 .card {
   padding: 1rem;
-  background-color: #1e293b;
-  border: 1px solid #475569;
+  background-color: #f8fafc;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
-  box-shadow: 0 0 8px rgba(14, 165, 233, 0.3);
+  box-shadow: 0 0 8px rgba(30, 58, 138, 0.15);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -138,8 +130,8 @@ body {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(3px);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -147,11 +139,11 @@ body {
 }
 
 .modal-content {
-  background: #1e293b;
+  background: #ffffff;
   padding: 2rem;
   border-radius: 10px;
-  box-shadow: 0 0 10px #0ea5e9;
-  color: #f1f5f9;
+  box-shadow: 0 0 10px #94a3b8;
+  color: #1e293b;
   min-width: 300px;
   max-width: 90%;
 }
@@ -161,4 +153,28 @@ body {
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .painel {
+    padding: 1rem;
+  }
+
+  .tabela th,
+  .tabela td {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .titulo {
+    font-size: 1.5rem;
+  }
+
+  .campo-busca {
+    width: 100%;
+  }
+
+  .modal-content {
+    padding: 1rem;
+  }
 }

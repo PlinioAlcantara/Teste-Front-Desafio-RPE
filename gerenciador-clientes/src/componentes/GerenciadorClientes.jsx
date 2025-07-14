@@ -1,68 +1,87 @@
-import React from "react";
-import { FaEye, FaSearch } from "react-icons/fa";
+import React, { useState } from "react";
+import ListaClientes from "./ListaClientes";
+import ListaFaturas from "./ListaFaturas";
+import ModalPagamento from "./ModalPagamento";
+import userClientes from "../hooks/userClientes";
 
-const ListaClientes = ({
-  clientes,
-  termoBusca,
-  setTermoBusca,
-  setClienteSelecionado,
-  setMostrarFaturas,
-  calcularIdade
-}) => {
-  const clientesFiltrados = clientes.filter(c =>
-    c.nome.toLowerCase().includes(termoBusca.toLowerCase()) ||
-    c.cpf.includes(termoBusca)
-  );
+const GerenciadorClientes = () => {
+  const { clientes, setClientes, buscarClientes } = userClientes();
+  const [clienteSelecionado, setClienteSelecionado] = useState(null);
+  const [mostrarFaturas, setMostrarFaturas] = useState(false);
+  const [termoBusca, setTermoBusca] = useState("");
+  const [faturaSelecionada, setFaturaSelecionada] = useState(null);
+  const [mostrarPagamento, setMostrarPagamento] = useState(false);
+
+  const calcularIdade = (dataNasc) => {
+    const hoje = new Date();
+    const nascimento = new Date(dataNasc);
+    let idade = hoje.getFullYear() - nascimento.getFullYear();
+    const m = hoje.getMonth() - nascimento.getMonth();
+    if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) idade--;
+    return idade;
+  };
+
+  // ✅ Corrigida: agora recebe a fatura como argumento
+  const registrarPagamento = (fatura) => {
+    const dataPagamento = new Date().toISOString().split("T")[0];
+
+    fetch(`http://localhost:8081/faturas/${fatura.id}/pagamento`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dataPagamento })
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error("Erro ao registrar pagamento");
+        }
+        return res.json();
+      })
+      .then(faturaAtualizada => {
+        const clienteAtualizado = {
+          ...clienteSelecionado,
+          faturas: clienteSelecionado.faturas.map(f =>
+            f.id === faturaAtualizada.id ? faturaAtualizada : f
+          )
+        };
+        setClienteSelecionado(clienteAtualizado);
+        buscarClientes();
+        setMostrarPagamento(false);
+      })
+      .catch(err => {
+        console.error("Erro ao registrar pagamento:", err);
+        alert("Erro ao registrar pagamento.");
+      });
+  };
 
   return (
-    <div className="container">
-      <h1 className="titulo futurista">Clientes</h1>
-      <div className="busca-box">
-        <FaSearch className="icone-busca" />
-        <input
-          type="text"
-          placeholder="Buscar por nome ou CPF"
-          value={termoBusca}
-          onChange={e => setTermoBusca(e.target.value)}
-          className="campo-busca"
+    <div className="painel">
+      {!mostrarFaturas && (
+        <ListaClientes
+          clientes={clientes}
+          termoBusca={termoBusca}
+          setTermoBusca={setTermoBusca}
+          setClienteSelecionado={setClienteSelecionado}
+          setMostrarFaturas={setMostrarFaturas}
+          calcularIdade={calcularIdade}
         />
-      </div>
-      <table className="tabela tabela-moderna">
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>CPF</th>
-            <th>Idade</th>
-            <th>Status</th>
-            <th>Limite</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody>
-          {clientesFiltrados.map(c => (
-            <tr key={c.id}>
-              <td>{c.nome}</td>
-              <td>{c.cpf}</td>
-              <td>{calcularIdade(c.dataNascimento)}</td>
-              <td>{c.statusBloqueio === 'B' ? 'Bloqueado' : 'Ativo'}</td>
-              <td>R$ {c.limiteCredito}</td>
-              <td>
-                <button
-                  className="botao"
-                  onClick={() => {
-                    setClienteSelecionado(c);
-                    setMostrarFaturas(true);
-                  }}
-                >
-                  Ver Faturas
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      )}
+      {mostrarFaturas && clienteSelecionado && (
+        <ListaFaturas
+          clienteSelecionado={clienteSelecionado}
+          setMostrarFaturas={setMostrarFaturas}
+          setFaturaSelecionada={setFaturaSelecionada}
+          setMostrarPagamento={setMostrarPagamento}
+        />
+      )}
+      {mostrarPagamento && faturaSelecionada && (
+        <ModalPagamento
+          faturaSelecionada={faturaSelecionada}
+          setMostrarPagamento={setMostrarPagamento}
+          registrarPagamento={registrarPagamento}
+        />
+      )}
     </div>
   );
 };
 
-export default ListaClientes;
+export default GerenciadorClientes;

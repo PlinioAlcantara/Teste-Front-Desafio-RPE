@@ -7,7 +7,7 @@ const ModalPagamento = ({ faturaSelecionada, setMostrarPagamento, registrarPagam
       <p>Valor: R$ {faturaSelecionada?.valor}</p>
       <div className="acoes-modal">
         <button className="botao" onClick={() => setMostrarPagamento(false)}>Cancelar</button>
-        <button className="botao" onClick={registrarPagamento}>Confirmar</button>
+        <button className="botao" onClick={() => registrarPagamento(faturaSelecionada)}>Confirmar</button>
       </div>
     </div>
   </div>
