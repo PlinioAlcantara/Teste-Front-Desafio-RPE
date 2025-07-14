@@ -21,7 +21,6 @@ const GerenciadorClientes = () => {
     return idade;
   };
 
-  // ✅ Corrigida: agora recebe a fatura como argumento
   const registrarPagamento = (fatura) => {
     const dataPagamento = new Date().toISOString().split("T")[0];
 
