@@ -12,6 +12,8 @@ const GerenciadorClientes = () => {
   const [faturaSelecionada, setFaturaSelecionada] = useState(null);
   const [mostrarPagamento, setMostrarPagamento] = useState(false);
 
+  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+
   const calcularIdade = (dataNasc) => {
     const hoje = new Date();
     const nascimento = new Date(dataNasc);
@@ -24,7 +26,7 @@ const GerenciadorClientes = () => {
   const registrarPagamento = (fatura) => {
     const dataPagamento = new Date().toISOString().split("T")[0];
 
-    fetch(`http://localhost:8080/faturas/${fatura.id}/pagamento`, {
+    fetch(`${apiUrl}/faturas/${fatura.id}/pagamento`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ dataPagamento })

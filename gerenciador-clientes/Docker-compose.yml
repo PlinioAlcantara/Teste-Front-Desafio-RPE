@@ -1,0 +1,16 @@
+
+
+services:
+  frontend:
+    build: .
+    container_name: frontend-app
+    ports:
+      - "4173:4173"  # Porta do Vite preview
+    networks:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:8080  # Nome do container do backend
+
+networks:
+  backend:
+    driver: bridge
